@@ -312,7 +312,7 @@ Función: Cada usuario puede asociar sus cuentas de redes sociales con su perfil
 Modelo: auth.oauth.provider
 Función: Permite a los usuarios iniciar sesión en el marketplace utilizando sus cuentas de redes sociales, mejorando la experiencia del usuario al evitar la necesidad de crear una cuenta nueva.
 
-# 4- Elaborar el Listado de Tablas por cada Módulo con variables y logica de Negocios
+# 3- Elaborar el Listado de Tablas por cada Módulo con variables y logica de Negocios
 
 Listado de Tablas por Módulo con Variables y Lógica de Negocios
 
