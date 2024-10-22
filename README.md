@@ -322,22 +322,27 @@ Tabla: res.users
 
 Variables: id, name, login, password, active, groups_id
 Lógica de Negocios: Autenticación de usuarios, gestión de permisos, control de acceso según grupos y roles.
+
 Tabla: res.partner
 
 Variables: id, name, email, phone, street, city, country_id
 Lógica de Negocios: Gestión de información de contacto de los usuarios y sus roles (vendedor, comprador).
+
 Tabla: res.groups
 
 Variables: id, name, category_id
 Lógica de Negocios: Gestión de roles y permisos de usuario (clientes, vendedores, administradores).
+
 Tabla: res.partner.bank
 
 Variables: id, acc_number, partner_id, bank_id
 Lógica de Negocios: Manejo de cuentas bancarias asociadas a usuarios y tiendas.
+
 Tabla: auth.oauth.provider
 
 Variables: id, name, client_id, client_secret, enabled
 Lógica de Negocios: Autenticación a través de OAuth con redes sociales (Google, Facebook).
+
 Tabla: res.users.log
 
 Variables: id, user_id, login_time, logout_time
