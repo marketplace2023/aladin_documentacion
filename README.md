@@ -748,171 +748,7 @@ Registro de Eventos: Cada acción relevante, como la creación de usuarios, inic
 Pseudocódigo del Módulo de Productos basado en los Modelos del Marketplace(Aplicando una Metodología Coherente y Robusta)
 Este pseudocódigo para el módulo de productos utiliza los modelos de datos : product.template, product.product, product.category, product.attribute, y product.attribute.value. El objetivo es ofrecer un enfoque robusto y coherente para la gestión de productos, sus variantes, categorías, y atributos dentro del sistema ERP, asegurando una estructura sólida para la creación, actualización y organización de productos.
 
-1.  Crear Producto Base (Plantilla)
-    Descripción: La función de creación de un producto base gestiona los datos esenciales de un producto mediante el modelo product.template.
-
-    FUNCION crear_producto_base(nombre, categoria_id, precio, descripcion, stock_inicial):
-
-    # Verificar si ya existe un producto con el mismo nombre
-
-    SI producto_existe(nombre):
-    retornar error("El producto ya existe")
-
-    # Crear nueva plantilla de producto en product.template
-
-    producto_template = nuevo product.template(
-    nombre=nombre,
-    categoria_id=categoria_id,
-    precio=precio,
-    descripcion=descripcion,
-    stock=stock_inicial,
-    activo=True
-    )
-
-    # Guardar los cambios en la base de datos
-
-    guardar(producto_template)
-
-    # Retornar el producto base creado
-
-    retornar producto_template
-
-2.  Crear Variantes de Producto
-    Descripción: Esta función permite crear variantes de un producto base utilizando el modelo product.product. Cada variante puede tener diferentes atributos como color, tamaño, etc.
-
-    FUNCION crear_variantes_producto(producto_template, lista_atributos_valores):
-
-    # Verificar si el producto base (template) existe
-
-    SI producto_template NO existe:
-    retornar error("Producto base no encontrado")
-
-    # Iterar sobre la lista de atributos y valores para crear variantes
-
-    PARA cada conjunto_de_atributos EN lista_atributos_valores:
-    variante_producto = nuevo product.product(
-    template_id=producto_template.id,
-    atributos=set_atributos(conjunto_de_atributos)
-    )
-
-         # Guardar la variante del producto
-         guardar(variante_producto)
-
-         # Registrar la creación de variante
-         registrar_evento_producto(variante_producto, "Variante creada")
-
-    retornar "Variantes creadas con éxito"
-
-3.  Asignar Categoría al Producto
-    Descripción: Asigna una categoría a un producto utilizando el modelo product.category.
-
-        FUNCION asignar_categoria_producto(producto, categoria_id):
-
-        # Verificar si el producto existe
-
-        SI producto NO existe:
-        retornar error("Producto no encontrado")
-
-        # Asignar la categoría al producto
-
-        producto.categoria_id = categoria_id
-
-        # Guardar los cambios en la base de datos
-
-        guardar(producto)
-
-        # Registrar el evento de asignación de categoría
-
-        registrar_evento_producto(producto, "Categoría asignada: " + categoria_id)
-
-        retornar "Categoría asignada con éxito"
-
-4.  Gestionar Atributos del Producto
-
-        Descripción: Esta función crea y asigna atributos a un producto utilizando los modelos product.attribute y product.attribute.value. Cada atributo define características únicas que pueden generar variantes.
-
-        FUNCION crear_atributo(nombre_atributo, valores_atributo):
-
-        # Verificar si el atributo ya existe
-
-        SI atributo_existe(nombre_atributo):
-        retornar error("El atributo ya existe")
-
-        # Crear un nuevo atributo
-
-        atributo = nuevo product.attribute(nombre=nombre_atributo)
-
-        # Guardar el atributo en la base de datos
-
-        guardar(atributo)
-
-        # Iterar sobre la lista de valores y crearlos
-
-        PARA cada valor EN valores_atributo:
-        valor_atributo = nuevo product.attribute.value(
-        atributo_id=atributo.id,
-        valor=valor
-        )
-
-            # Guardar cada valor de atributo
-            guardar(valor_atributo)
-
-        # Retornar el atributo con sus valores asociados
-
-        retornar atributo
-
-5.  Asignar Atributos a un Producto
-
-        Descripción: Asigna atributos y sus valores a un producto base o a sus variantes.
-
-        FUNCION asignar_atributos_producto(producto_template, lista_atributos_valores):
-
-        # Verificar si el producto base existe
-
-        SI producto_template NO existe:
-        retornar error("Producto no encontrado")
-
-        # Iterar sobre los atributos y valores para asignarlos al producto
-
-        PARA cada atributo_valor EN lista_atributos_valores:
-        asignar_atributo(producto_template, atributo_valor)
-
-        # Guardar cambios
-
-        guardar(producto_template)
-
-        # Registrar evento de asignación de atributos
-
-        registrar_evento_producto(producto_template, "Atributos asignados")
-
-        retornar "Atributos asignados correctamente"
-
-6.  Actualizar Información del Producto
-
-        Descripción: Actualiza la información del producto base o de una variante, como el precio, descripción, o stock disponible.
-
-        FUNCION actualizar_producto(producto, nuevos_datos):
-
-        # Verificar si el producto existe
-
-        SI producto NO existe:
-        retornar error("Producto no encontrado")
-
-        # Actualizar la información del producto
-
-        producto.actualizar(nuevos_datos)
-
-        # Guardar los cambios
-
-        guardar(producto)
-
-        # Registrar el evento de actualización del producto
-
-        registrar_evento_producto(producto, "Producto actualizado")
-
-        retornar "Producto actualizado con éxito"
-
-7.  Consultar Productos por Categoría
+1.  Consultar Productos por Categoría
 
         Descripción: Obtiene una lista de productos que pertenecen a una categoría específica.
 
@@ -929,163 +765,9 @@ Este pseudocódigo para el módulo de productos utiliza los modelos de datos : p
 
         retornar productos
 
-8.  Registrar Eventos en el Log de Productos
-
-            Descripción: Registra eventos importantes relacionados con los productos, como la creación, actualización o asignación de atributos.
-
-            FUNCION registrar_evento_producto(producto, evento):
-
-            # Crear un nuevo registro en el log de productos
-
-            log_evento = nuevo product.log(producto_id=producto.id, evento=evento, fecha=fecha_actual())
-
-            # Guardar el log
-
-            guardar(log_evento)
-
-            Resumen del Proceso
-
-        Crear Producto Base: Utiliza el modelo product.template para gestionar los productos base que luego pueden tener variantes.
-
-        Crear Variantes de Producto: Utiliza el modelo product.product para generar diferentes variantes de un producto base (diferentes colores, tamaños, etc.).
-
-        Categorizar Productos: Los productos pueden clasificarse utilizando el modelo product.category para facilitar su búsqueda y organización.
-
-        Gestionar Atributos: Se pueden crear atributos mediante product.attribute y asignar valores a esos atributos con product.attribute.value para generar variantes únicas.
-
-        Actualizar Información del Producto: Las actualizaciones de productos (como precios, descripciones o stock) son esenciales para mantener los datos al día.
-
-        Consultar por Categoría: Permite filtrar productos por categorías específicas para una búsqueda más eficiente.
-
-        Registro de Eventos: Todos los eventos clave relacionados con productos se registran para auditoría y seguimiento.
-
 # Módulo de Tiendas
 
-1. Crear Tienda
-
-   Descripción: Esta función se encarga de crear una nueva tienda en el marketplace, almacenando su información básica en res.partner.
-
-   FUNCION crear_tienda(datos_tienda):
-
-   # Verificar si la tienda ya existe
-
-   SI tienda_existe(datos_tienda['nombre']):
-   retornar error("La tienda ya existe")
-
-   # Crear un nuevo registro en res.partner
-
-   tienda = nuevo res.partner(
-   name=datos_tienda['nombre'],
-   street=datos_tienda['direccion'],
-   phone=datos_tienda['telefono'],
-   email=datos_tienda['email'],
-   is_company=True, # Indica que es una entidad comercial
-   customer=False, # No es un cliente
-   supplier=True, # Es un proveedor
-   active=True
-   )
-
-   # Guardar la tienda en la base de datos
-
-   guardar(tienda)
-
-   # Registrar evento de creación de tienda
-
-   registrar_evento_tienda(tienda, "Tienda creada")
-
-   retornar tienda
-
-2. Asignar Cuenta Bancaria a la Tienda
-   Descripción: Permite asociar una o varias cuentas bancarias a la tienda para gestionar las transacciones financieras.
-
-   FUNCION asignar_cuenta_bancaria_tienda(tienda, datos_bancarios):
-
-   # Verificar si la tienda existe
-
-   SI tienda NO existe:
-   retornar error("Tienda no encontrada")
-
-   # Crear un nuevo registro en res.partner.bank
-
-   cuenta_bancaria = nuevo res.partner.bank(
-   partner_id=tienda.id,
-   acc_number=datos_bancarios['numero_cuenta'],
-   bank_name=datos_bancarios['nombre_banco'],
-   swift=datos_bancarios['codigo_swift']
-   )
-
-   # Asociar la cuenta bancaria a la tienda
-
-   tienda.bank_ids.agregar(cuenta_bancaria)
-
-   # Guardar los cambios
-
-   guardar(tienda, cuenta_bancaria)
-
-   # Registrar evento de asociación de cuenta bancaria
-
-   registrar_evento_tienda(tienda, "Cuenta bancaria asociada")
-
-   retornar cuenta_bancaria
-
-3. Categorizar Tienda
-   Descripción: Asigna una o más categorías a la tienda para organizarla dentro del marketplace.
-
-   FUNCION categorizar_tienda(tienda, lista_categorias):
-
-   # Verificar si la tienda existe
-
-   SI tienda NO existe:
-   retornar error("Tienda no encontrada")
-
-   # Iterar sobre la lista de categorías
-
-   PARA cada categoria_id EN lista_categorias: # Verificar si la categoría existe
-   SI categoria NO existe(categoria_id):
-   retornar error("Categoría no encontrada") # Asignar categoría a la tienda
-   tienda.category_id.agregar(categoria_id)
-
-   # Guardar los cambios
-
-   guardar(tienda)
-
-   # Registrar evento de categorización
-
-   registrar_evento_tienda(tienda, "Categorías asignadas: " + convertir_a_cadena(lista_categorias))
-
-   retornar "Categorías asignadas con éxito"
-
-4. Asignar Usuario Responsable a la Tienda
-   Descripción: Asigna un usuario (usualmente un empleado o propietario) responsable de gestionar la tienda dentro del marketplace.
-
-   FUNCION asignar_usuario_a_tienda(tienda, usuario_id):
-
-   # Verificar si la tienda y el usuario existen
-
-   SI tienda NO existe:
-   retornar error("Tienda no encontrada")
-   SI usuario NO existe(usuario_id):
-   retornar error("Usuario no encontrado")
-
-   # Asignar el usuario a la tienda
-
-   tienda.user_id = usuario_id
-
-   # Asignar grupo de permisos al usuario (por ejemplo, 'vendedor')
-
-   asignar_grupo(usuario_id, 'Vendedor')
-
-   # Guardar los cambios
-
-   guardar(tienda)
-
-   # Registrar evento de asignación de usuario
-
-   registrar_evento_tienda(tienda, "Usuario asignado: " + usuario_id)
-
-   retornar "Usuario asignado con éxito"
-
-5. Vincular Pedidos a la Tienda
+1. Vincular Pedidos a la Tienda
    Descripción: Asocia los pedidos realizados en el marketplace con la tienda correspondiente.
 
    FUNCION vincular_pedido_tienda(pedido_id, tienda_id):
@@ -1115,7 +797,7 @@ Este pseudocódigo para el módulo de productos utiliza los modelos de datos : p
 
    retornar "Pedido vinculado a la tienda con éxito"
 
-6. Registrar Eventos en el Log de Tiendas
+2. Registrar Eventos en el Log de Tiendas
    Descripción: Registra eventos importantes relacionados con las tiendas, como creación, actualización de información, asociación de usuarios, etc.
 
    FUNCION registrar_evento_tienda(tienda, evento):
@@ -1131,47 +813,6 @@ Este pseudocódigo para el módulo de productos utiliza los modelos de datos : p
    # Guardar el log
 
    guardar(log_evento)
-
-7. Actualizar Información de la Tienda
-   Descripción: Actualiza los datos de la tienda, como dirección, información de contacto, etc.
-
-   FUNCION actualizar_informacion_tienda(tienda_id, nuevos_datos):
-
-   # Verificar si la tienda existe
-
-   SI tienda NO existe(tienda_id):
-   retornar error("Tienda no encontrada")
-
-   # Obtener la tienda
-
-   tienda = obtener_tienda_por_id(tienda_id)
-
-   # Actualizar la información de la tienda
-
-   tienda.actualizar(nuevos_datos)
-
-   # Guardar los cambios
-
-   guardar(tienda)
-
-   # Registrar evento de actualización
-
-   registrar_evento_tienda(tienda, "Información actualizada")
-
-   retornar "Información de la tienda actualizada con éxito"
-
-   Resumen del Proceso
-   Crear Tienda: Utiliza res.partner para almacenar la información básica de la tienda.
-
-   Asignar Cuenta Bancaria: Usa res.partner.bank para asociar cuentas bancarias a la tienda.
-
-   Categorizar Tienda: Usa res.partner.category para asignar categorías a la tienda.
-
-   Asignar Usuario Responsable: Usa res.users para asignar un usuario que administre la tienda y res.groups para asignar permisos.
-
-   Vincular Pedidos a la Tienda: Usa sale.order para asociar pedidos con la tienda correspondiente
-
-   Registrar Eventos: Mantiene un registro de eventos importantes relacionados con la tienda.
 
 # Módulo de Pedidos
 
@@ -1518,43 +1159,7 @@ Este pseudocódigo para el módulo de productos utiliza los modelos de datos : p
 
    retornar "Reseña creada con éxito y pendiente de aprobación"
 
-2. Aprobar o Rechazar Reseña
-   Descripción: Permite a un moderador o administrador revisar las reseñas pendientes y aprobarlas o rechazarlas.
-
-   FUNCION revisar_reseña(reseña_id, aprobar=True):
-
-   # Verificar si la reseña existe
-
-   SI reseña NO existe(reseña_id):
-   retornar error("Reseña no encontrada")
-
-   # Obtener la reseña
-
-   reseña = obtener_reseña_por_id(reseña_id)
-
-   # Verificar que la reseña esté en estado 'pendiente'
-
-   SI reseña.estado != 'pendiente':
-   retornar error("La reseña ya ha sido revisada")
-
-   SI aprobar:
-   reseña.estado = 'aprobada'
-   mensaje = "Reseña aprobada"
-   SINO:
-   reseña.estado = 'rechazada'
-   mensaje = "Reseña rechazada"
-
-   # Guardar los cambios
-
-   guardar(reseña)
-
-   # Registrar evento de revisión
-
-   registrar_evento_reseña(reseña, mensaje)
-
-   retornar mensaje
-
-3. Mostrar Reseñas Aprobadas de un Producto
+2. Mostrar Reseñas Aprobadas de un Producto
    Descripción: Recupera y muestra todas las reseñas aprobadas para un producto específico.
 
    FUNCION obtener_reseñas_producto(producto_id):
@@ -1570,68 +1175,7 @@ Este pseudocódigo para el módulo de productos utiliza los modelos de datos : p
 
    retornar reseñas
 
-4. Calcular Calificación Promedio del Producto
-   Descripción: Calcula la calificación promedio de un producto basado en las reseñas aprobadas.
-
-   FUNCION calcular_calificacion_promedio(producto_id):
-
-   # Obtener las reseñas aprobadas del producto
-
-   reseñas = obtener_reseñas_producto(producto_id)
-
-   # Verificar que existan reseñas aprobadas
-
-   SI longitud(reseñas) == 0:
-   retornar 0 # O mensaje indicando que no hay calificaciones
-
-   # Sumar las puntuaciones
-
-   suma_puntuaciones = 0
-   PARA cada reseña EN reseñas:
-   calificacion = obtener_calificacion_por_reseña(reseña.id)
-   suma_puntuaciones += calificacion.puntuacion
-
-   # Calcular promedio
-
-   promedio = suma_puntuaciones / longitud(reseñas)
-
-   retornar promedio
-
-5. Responder a una Reseña
-   Descripción: Permite al vendedor del producto responder a una reseña específica.
-
-   FUNCION responder_reseña(reseña_id, vendedor_id, respuesta):
-
-   # Verificar si la reseña existe
-
-   SI reseña NO existe(reseña_id):
-   retornar error("Reseña no encontrada")
-
-   # Obtener la reseña
-
-   reseña = obtener_reseña_por_id(reseña_id)
-
-   # Verificar que el vendedor sea el propietario del producto
-
-   SI NO es_vendedor_producto(vendedor_id, reseña.producto_id):
-   retornar error("No tiene permiso para responder esta reseña")
-
-   # Añadir respuesta a la reseña
-
-   reseña.respuesta_vendedor = respuesta
-   reseña.fecha_respuesta = fecha_actual()
-
-   # Guardar los cambios
-
-   guardar(reseña)
-
-   # Registrar evento de respuesta
-
-   registrar_evento_reseña(reseña, "Respuesta del vendedor añadida")
-
-   retornar "Respuesta añadida con éxito"
-
-6. Reportar una Reseña Inapropiada
+3. Reportar una Reseña Inapropiada
    Descripción: Permite a los usuarios reportar una reseña que consideren inapropiada o que viole las políticas del marketplace.
 
    FUNCION reportar_reseña(reseña_id, usuario_id, motivo):
@@ -1662,7 +1206,7 @@ Este pseudocódigo para el módulo de productos utiliza los modelos de datos : p
 
    retornar "Reseña reportada con éxito"
 
-7. Eliminar una Reseña
+4. Eliminar una Reseña
    Descripción: Permite a un administrador eliminar una reseña inapropiada o que no cumple con las políticas.
 
    FUNCION eliminar_reseña(reseña_id):
@@ -1684,7 +1228,7 @@ Este pseudocódigo para el módulo de productos utiliza los modelos de datos : p
 
    retornar "Reseña eliminada con éxito"
 
-8. Registrar Eventos en el Log de Reseñas
+5. Registrar Eventos en el Log de Reseñas
    Descripción: Mantiene un registro de eventos y acciones realizadas en las reseñas para fines de auditoría y seguimiento.
 
    FUNCION registrar_evento_reseña(reseña, evento):
@@ -1701,30 +1245,16 @@ Este pseudocódigo para el módulo de productos utiliza los modelos de datos : p
 
    guardar(log_evento)
 
-9. Validar si el Cliente ha Comprado el Producto
-   Descripción: Verifica que el cliente haya comprado el producto antes de permitirle crear una reseña.
+6. Obtener Calificación por Reseña
+   Descripción: Recupera la calificación asociada a una reseña específica.
 
-   FUNCION ha_comprado_producto(cliente_id, producto_id):
+   FUNCION obtener_calificacion_por_reseña(reseña_id):
 
-   # Obtener pedidos confirmados del cliente que incluyan el producto
+   # Buscar calificación en product.rating por reseña_id
 
-   pedidos = obtener_pedidos_por_cliente_y_producto(cliente_id, producto_id, estado='sale')
+   calificacion = buscar_calificacion_por_reseña_id(reseña_id)
 
-   SI longitud(pedidos) > 0:
-   retornar True
-   SINO:
-   retornar False
-
-10. Obtener Calificación por Reseña
-    Descripción: Recupera la calificación asociada a una reseña específica.
-
-    FUNCION obtener_calificacion_por_reseña(reseña_id):
-
-    # Buscar calificación en product.rating por reseña_id
-
-    calificacion = buscar_calificacion_por_reseña_id(reseña_id)
-
-    retornar calificacion
+   retornar calificacion
 
 # Módulo de Geolocalización
 
@@ -1889,25 +1419,7 @@ Este pseudocódigo para el módulo de productos utiliza los modelos de datos : p
 
         retornar ubicaciones_cercanas
 
-7.  Integrar con Servicios de Mapas Externos
-    Descripción: Configura la integración con servicios externos de mapas y geocodificación.
-
-        FUNCION configurar_servicio_mapas(api_key, proveedor='GoogleMaps'):
-
-        # Configurar las credenciales y parámetros del servicio de mapas
-
-        mapa_config = nuevo mapas.config(
-        api_key=api_key,
-        proveedor=proveedor
-        )
-
-        # Guardar la configuración
-
-        guardar(mapa_config)
-
-        retornar "Servicio de mapas configurado con éxito"
-
-8.  Geocodificar Dirección para Obtener Coordenadas
+7.  Geocodificar Dirección para Obtener Coordenadas
 
         Descripción: Convierte una dirección en coordenadas geográficas utilizando un servicio de geocodificación.
 
@@ -1930,7 +1442,7 @@ Este pseudocódigo para el módulo de productos utiliza los modelos de datos : p
         SINO:
         retornar None
 
-9.  Asignar Coordenadas Automáticamente Basadas en Dirección
+8.  Asignar Coordenadas Automáticamente Basadas en Dirección
 
     Descripción: Asigna coordenadas a una ubicación basándose en su dirección física.
 
@@ -1973,34 +1485,7 @@ Este pseudocódigo para el módulo de productos utiliza los modelos de datos : p
 
 # Módulo de Horarios
 
-1. Definir Horarios de Operación para Tiendas
-   Descripción: Permite establecer los horarios de apertura y cierre de una tienda o proveedor utilizando el modelo marketplace.schedule.
-
-   FUNCIÓN definir_horario_operacion(tienda_id, dia_semana, hora_apertura, hora_cierre):
-
-   # Verificar si la tienda existe
-
-   SI tienda NO existe(tienda_id):
-   retornar error("Tienda no encontrada")
-
-   # Crear o actualizar el horario en marketplace.schedule
-
-   horario = buscar_o_crear_horario(tienda_id, dia_semana)
-
-   horario.hora_apertura = hora_apertura
-   horario.hora_cierre = hora_cierre
-
-   # Guardar los cambios
-
-   guardar(horario)
-
-   # Registrar evento de definición de horario
-
-   registrar_evento_horario(horario, "Horario definido para el día " + dia_semana)
-
-   retornar "Horario definido con éxito para el día " + dia_semana
-
-2. Programar Eventos o Citas
+1. Programar Eventos o Citas
    Descripción: Permite a los clientes o a la tienda programar eventos o citas en horarios disponibles utilizando el modelo calendar.event.
 
    FUNCIÓN programar_evento(tienda_id, cliente_id, fecha_hora_inicio, fecha_hora_fin, descripción):
@@ -2042,7 +1527,7 @@ Este pseudocódigo para el módulo de productos utiliza los modelos de datos : p
 
    retornar "Evento programado con éxito"
 
-3. Consultar Disponibilidad
+2. Consultar Disponibilidad
    Descripción: Permite verificar la disponibilidad de una tienda o proveedor en una fecha y rango horario específicos.
 
    FUNCIÓN consultar_disponibilidad(tienda_id, fecha_hora_inicio, fecha_hora_fin):
@@ -2072,7 +1557,7 @@ Este pseudocódigo para el módulo de productos utiliza los modelos de datos : p
 
    retornar True
 
-4. Reservar Horario
+3. Reservar Horario
    Descripción: Permite a un cliente reservar un horario específico con una tienda o proveedor.
 
    FUNCIÓN reservar_horario(tienda_id, cliente_id, fecha_hora_inicio, fecha_hora_fin):
@@ -2088,39 +1573,7 @@ Este pseudocódigo para el módulo de productos utiliza los modelos de datos : p
 
    retornar resultado
 
-5. Actualizar Horario de Operación
-   Descripción: Permite a una tienda actualizar sus horarios de operación existentes.
-
-   FUNCIÓN actualizar_horario_operacion(tienda_id, dia_semana, nueva_hora_apertura, nueva_hora_cierre):
-
-   # Verificar si la tienda existe
-
-   SI tienda NO existe(tienda_id):
-   retornar error("Tienda no encontrada")
-
-   # Obtener el horario existente
-
-   horario = obtener_horario_operacion(tienda_id, dia_semana)
-
-   SI horario ES None:
-   retornar error("No existe un horario definido para este día")
-
-   # Actualizar las horas
-
-   horario.hora_apertura = nueva_hora_apertura
-   horario.hora_cierre = nueva_hora_cierre
-
-   # Guardar los cambios
-
-   guardar(horario)
-
-   # Registrar evento de actualización
-
-   registrar_evento_horario(horario, "Horario actualizado para el día " + dia_semana)
-
-   retornar "Horario actualizado con éxito para el día " + dia_semana
-
-6. Cancelar Evento o Reserva
+4. Cancelar Evento o Reserva
    Descripción: Permite cancelar un evento o reserva previamente programado.
 
    FUNCIÓN cancelar_evento(evento_id, usuario_id):
@@ -2159,31 +1612,7 @@ Este pseudocódigo para el módulo de productos utiliza los modelos de datos : p
 
    retornar "Evento cancelado con éxito"
 
-7. Enviar Notificaciones Relacionadas con Horarios y Eventos
-   Descripción: Envía notificaciones a los usuarios involucrados en eventos o cambios de horarios.
-
-   FUNCIÓN enviar_notificacion(usuario_id, mensaje):
-
-   # Verificar si el usuario existe
-
-   SI usuario NO existe(usuario_id):
-   retornar error("Usuario no encontrado")
-
-   # Crear una notificación (puede ser en mail.message o sistema de notificaciones)
-
-   notificacion = nuevo notificacion(
-   usuario_id=usuario_id,
-   mensaje=mensaje,
-   fecha=fecha_actual()
-   )
-
-   # Guardar la notificación
-
-   guardar(notificacion)
-
-   retornar "Notificación enviada a usuario " + usuario_id
-
-8. Registrar Eventos en el Log de Horarios
+5. Registrar Eventos en el Log de Horarios
    Descripción: Mantiene un registro de eventos y acciones realizadas en los horarios y eventos para fines de auditoría y seguimiento.
 
    FUNCIÓN registrar_evento_horario(horario, evento):
@@ -2200,7 +1629,7 @@ Este pseudocódigo para el módulo de productos utiliza los modelos de datos : p
 
    guardar(log_evento)
 
-9. Obtener Horario de Operación de una Tienda
+6. Obtener Horario de Operación de una Tienda
    Descripción: Recupera los horarios de operación de una tienda para un día específico.
 
    FUNCIÓN obtener_horario_operacion(tienda_id, dia_semana):
@@ -2211,18 +1640,114 @@ Este pseudocódigo para el módulo de productos utiliza los modelos de datos : p
 
    retornar horario
 
-10. Listar Eventos Programados para una Tienda
-    Descripción: Muestra todos los eventos programados para una tienda en un rango de fechas.
+7. Listar Eventos Programados para una Tienda
+   Descripción: Muestra todos los eventos programados para una tienda en un rango de fechas.
 
-    FUNCIÓN listar_eventos_tienda(tienda_id, fecha_inicio, fecha_fin):
+   FUNCIÓN listar_eventos_tienda(tienda_id, fecha_inicio, fecha_fin):
 
-    # Verificar si la tienda existe
+   # Verificar si la tienda existe
 
-    SI tienda NO existe(tienda_id):
-    retornar error("Tienda no encontrada")
+   SI tienda NO existe(tienda_id):
+   retornar error("Tienda no encontrada")
 
-    # Obtener eventos en el rango de fechas
+   # Obtener eventos en el rango de fechas
 
-    eventos = obtener_eventos_por_tienda_y_fecha(tienda_id, fecha_inicio, fecha_fin)
+   eventos = obtener_eventos_por_tienda_y_fecha(tienda_id, fecha_inicio, fecha_fin)
 
-    retornar eventos
+   retornar eventos
+
+# Modulo de Entradas
+
+1.  Comprar Boletos
+    Descripción: Permite a un cliente comprar boletos para un evento, creando una orden de venta y registrando al participante.
+
+    FUNCIÓN comprar_boletos(cliente_id, evento_id, lista_boletos):
+
+    # Verificar si el cliente y el evento existen
+
+    SI cliente NO existe(cliente_id):
+    retornar error("Cliente no encontrado")
+    SI evento NO existe(evento_id):
+    retornar error("Evento no encontrado")
+
+    # Crear una nueva orden de venta en sale.order
+
+    orden_venta = nuevo sale.order(
+    partner_id=cliente_id,
+    date_order=fecha_actual(),
+    state='draft' # Estado inicial de la orden
+    )
+
+    # Guardar la orden de venta
+
+    guardar(orden_venta)
+
+    # Iterar sobre la lista de boletos para agregar líneas de venta
+
+    PARA cada boleto_compra EN lista_boletos: # Obtener el boleto
+    boleto = obtener_boleto_por_id(boleto_compra['boleto_id'])
+
+         # Verificar disponibilidad de asientos
+         SI boleto.seats_available < boleto_compra['cantidad']:
+             retornar error("No hay suficientes boletos disponibles para " + boleto.name)
+
+         # Crear una línea de venta en sale.order.line
+         linea_venta = nuevo sale.order.line(
+             order_id=orden_venta.id,
+             product_id=boleto.id,  # Asumiendo que el boleto es un producto
+             name=boleto.name,
+             product_uom_qty=boleto_compra['cantidad'],
+             price_unit=boleto.price
+         )
+
+         # Guardar la línea de venta
+         guardar(linea_venta)
+
+         # Actualizar asientos disponibles
+         boleto.seats_available -= boleto_compra['cantidad']
+         guardar(boleto)
+
+         # Registrar evento de compra de boleto
+         registrar_evento_evento(evento_id, "Boletos vendidos: " + boleto.name + ", Cantidad: " + boleto_compra['cantidad'])
+
+    # Actualizar monto total de la orden de venta
+
+    actualizar_monto_orden_venta(orden_venta.id)
+
+    # Confirmar la orden de venta
+
+    confirmar_orden_venta(orden_venta.id)
+
+    # Registrar al cliente como participante en event.registration
+
+    registrar_participante(cliente_id, evento_id, lista_boletos)
+
+    retornar "Compra realizada con éxito"
+
+2.  Confirmar Orden de Venta
+    Descripción: Cambia el estado de la orden de venta a 'confirmada' y procede con el flujo de venta.
+
+    FUNCIÓN confirmar_orden_venta(orden_venta_id):
+
+    # Obtener la orden de venta
+
+    orden_venta = obtener_orden_venta_por_id(orden_venta_id)
+
+    # Verificar si la orden está en estado 'draft'
+
+    SI orden_venta.state != 'draft':
+    retornar error("La orden no puede ser confirmada en su estado actual")
+
+    # Cambiar el estado a 'sale' (confirmada)
+
+    orden_venta.state = 'sale'
+
+    # Guardar los cambios
+
+    guardar(orden_venta)
+
+    # Registrar evento de confirmación de orden
+
+    registrar_evento_venta(orden_venta, "Orden de venta confirmada")
+
+    retornar "Orden de venta confirmada con éxito"
