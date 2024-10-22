@@ -2301,6 +2301,105 @@ enviar_notificacion(res.partner, reserva.partner_id, mensaje)
    FUNCION notificar_cliente_pedido_confirmado(carrito):
    mensaje = generar_mensaje_confirmacion_pedido(carrito)
    enviar_notificacion(res.partner, carrito.partner_id, mensaje)
+
    FUNCION notificar_cliente_pedido_cancelado(carrito):
    mensaje = generar_mensaje_cancelacion_pedido(carrito)
    enviar_notificacion(res.partner, carrito.partner_id, mensaje)
+
+# Metodos de Pago
+
+1. Iniciar el Proceso de Pago
+   Descripción:
+   iniciar_proceso_pago: Inicia el proceso de pago para un pedido específico del cliente, verificando el estado del pedido y mostrando los métodos de pago disponibles.
+
+   FUNCION iniciar_proceso_pago(cliente, pedido):
+
+   # Verificar que el pedido esté en estado 'pendiente de pago'
+
+   SI pedido.estado != 'pendiente_de_pago':
+   retornar error("El pedido no está pendiente de pago")
+
+   # Obtener los métodos de pago disponibles
+
+   metodos_pago = obtener_metodos_pago_disponibles(account.payment.method)
+   mostrar_metodos_pago(metodos_pago)
+
+   retornar metodos_pago
+
+2. Mostrar Detalles del Pago
+   Descripción:
+   mostrar_detalles_pago: Presenta al cliente el monto total a pagar, incluyendo impuestos, descuentos y otros cargos aplicables.
+
+   FUNCION mostrar_detalles_pago(seleccion):
+
+   # Obtener los detalles del monto a pagar y condiciones
+
+   detalles_pago = obtener_detalles_pago(seleccion)
+   mostrar_detalles(detalles_pago)
+   retornar detalles_pago
+
+3. Seleccionar Método de Pago
+   Descripción:
+   seleccionar_metodo_pago: El cliente elige su método de pago preferido de entre los disponibles.
+
+   FUNCION seleccionar_metodo_pago(cliente):
+
+   # Obtener los métodos de pago disponibles para el cliente
+
+   metodos_pago_disponibles = obtener_metodos_pago(account.payment.method)
+   mostrar_metodos_pago(metodos_pago_disponibles)
+   metodo_seleccionado = cliente_selecciona_metodo_pago(metodos_pago_disponibles)
+   retornar metodo_seleccionado
+
+4. Ingresar Datos del Método de Pago
+   Descripción:
+   ingresar_datos_metodo_pago: Si el método de pago seleccionado requiere información adicional (por ejemplo, número de tarjeta), el cliente ingresa estos datos.
+   FUNCION ingresar_datos_metodo_pago(metodo_seleccionado):
+   SI metodo_seleccionado.requiere_datos:
+   datos_pago = cliente_ingresa_datos_pago(metodo_seleccionado)
+   retornar datos_pago
+   SINO:
+   retornar None
+
+5. Crear Registro de Pago
+   Descripción:
+   crear_registro_pago: Genera un nuevo registro de pago en estado 'borrador' con la información relevante.
+
+   FUNCION crear_registro_pago(cliente, seleccion, metodo_seleccionado, datos_pago): # Crear un registro de pago en account.payment
+   pago = nuevo account.payment(
+   partner_id=cliente.id,
+   monto=seleccion.total_a_pagar,
+   metodo_pago_id=metodo_seleccionado.id,
+   estado='borrador',
+   referencia=seleccion.id
+   )
+   SI datos_pago NO ES None:
+   pago.datos_pago = cifrar_datos(datos_pago)
+   guardar(pago)
+   retornar pago
+
+6. Procesar Pago
+   Descripción:
+   procesar_pago: Ejecuta la transacción del pago y actualiza su estado según el resultado.
+
+   FUNCION procesar_pago(pago): # Interactuar con la pasarela de pagos según el método seleccionado
+   resultado_pago = ejecutar_transaccion(pago)
+   SI resultado_pago.es_exitoso:
+   actualizar_estado_pago(pago, 'hecho')
+   retornar True
+   SINO:
+   actualizar_estado_pago(pago, 'cancelado')
+   retornar False
+
+7. Notificaciones al Cliente
+   Descripción:
+   notificar_cliente_pago_exitoso: Envía una notificación al cliente confirmando que el pago se realizó con éxito.
+   notificar_cliente_pago_fallido: Informa al cliente que el pago no pudo ser procesado.
+
+   FUNCION notificar_cliente_pago_exitoso(pago):
+   mensaje = generar_mensaje_pago_exitoso(pago)
+   enviar_notificacion(res.partner, pago.partner_id, mensaje)
+
+   FUNCION notificar_cliente_pago_fallido(pago):
+   mensaje = generar_mensaje_pago_fallido(pago)
+   enviar_notificacion(res.partner, pago.partner_id, mensaje)
