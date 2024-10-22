@@ -2279,3 +2279,28 @@ enviar_notificacion(res.partner, reserva.partner_id, mensaje)
    retornar False
 
 8. Confirmar Pedido
+   Descripción:
+   confirmar_pedido: Si el pago es exitoso, confirma el pedido; de lo contrario, cancela el pedido.
+
+   FUNCION confirmar_pedido(carrito, pago):
+   SI pago.estado == 'confirmado': # Actualizar el estado del pedido a 'confirmado'
+   carrito.estado = 'confirmado'
+   actualizar_estado_carrito(carrito)
+   notificar_cliente_pedido_confirmado(carrito)
+   retornar "Pedido confirmado exitosamente"
+   SINO:
+   carrito.estado = 'cancelado'
+   actualizar_estado_carrito(carrito)
+   notificar_cliente_pedido_cancelado(carrito)
+   retornar "No se pudo confirmar el pedido"
+
+9. Notificaciones al Cliente
+   Descripción:
+   notificar_cliente_pedido_confirmado: Envía una notificación al cliente confirmando su pedido.
+   notificar_cliente_pedido_cancelado: Informa al cliente que el pedido no pudo ser confirmado.
+   FUNCION notificar_cliente_pedido_confirmado(carrito):
+   mensaje = generar_mensaje_confirmacion_pedido(carrito)
+   enviar_notificacion(res.partner, carrito.partner_id, mensaje)
+   FUNCION notificar_cliente_pedido_cancelado(carrito):
+   mensaje = generar_mensaje_cancelacion_pedido(carrito)
+   enviar_notificacion(res.partner, carrito.partner_id, mensaje)
