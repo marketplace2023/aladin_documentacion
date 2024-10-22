@@ -1751,3 +1751,531 @@ Este pseudocódigo para el módulo de productos utiliza los modelos de datos : p
     registrar_evento_venta(orden_venta, "Orden de venta confirmada")
 
     retornar "Orden de venta confirmada con éxito"
+
+# Módulo de Promociones
+
+1. Visualizar Promociones Disponibles
+   Descripción: Permite al cliente ver las promociones y cupones disponibles que pueden ser aplicados a productos específicos o categorías.
+
+   FUNCIÓN mostrar_promociones_disponibles(cliente_id):
+
+   # Verificar si el cliente existe
+
+   SI cliente NO existe(cliente_id):
+   retornar error("Cliente no encontrado")
+
+   # Obtener cupones disponibles para el cliente
+
+   promociones = obtener_cupones_disponibles(cliente_id)
+
+   # Mostrar promociones al cliente
+
+   PARA cada promocion EN promociones:
+   mostrar_promocion_al_cliente(promocion)
+
+   retornar "Promociones mostradas con éxito"
+
+2. Aplicar Cupón a la Orden de Compra
+   Descripción: Permite al cliente aplicar un cupón a su carrito de compras para obtener un descuento.
+
+   FUNCIÓN aplicar_cupon_a_orden(cliente_id, orden_id, codigo_cupon):
+
+   # Verificar si el cliente y la orden existen
+
+   SI cliente NO existe(cliente_id):
+   retornar error("Cliente no encontrado")
+   SI orden NO existe(orden_id):
+   retornar error("Orden no encontrada")
+
+   # Obtener la orden
+
+   orden = obtener_orden_por_id(orden_id)
+
+   # Verificar que la orden pertenezca al cliente
+
+   SI orden.partner_id != cliente_id:
+   retornar error("La orden no pertenece al cliente")
+
+   # Obtener el cupón
+
+   cupon = obtener_cupon_por_codigo(codigo_cupon)
+
+   # Verificar que el cupón exista y esté activo
+
+   SI cupon ES None O cupon.state != 'valid':
+   retornar error("Cupón inválido o expirado")
+
+   # Verificar condiciones del cupón (fecha, uso, productos aplicables)
+
+   SI NO verificar_condiciones_cupon(cupon, orden):
+   retornar error("El cupón no cumple con las condiciones necesarias")
+
+   # Aplicar el cupón a la orden
+
+   orden.coupon_id = cupon.id
+
+   # Calcular descuento y actualizar monto total
+
+   monto_descuento = calcular_descuento_cupon(cupon, orden)
+   orden.amount_total -= monto_descuento
+
+   # Guardar los cambios
+
+   guardar(orden)
+
+   # Actualizar uso del cupón
+
+   cupon.uso_actual += 1
+   guardar(cupon)
+
+   # Registrar evento de aplicación de cupón
+
+   registrar_evento_cupon(cupon, "Cupón aplicado a la orden " + orden_id)
+
+   retornar "Cupón aplicado con éxito. Descuento de " + monto_descuento
+
+3. Verificar Condiciones del Cupón
+   Descripción: Verifica si el cupón cumple con las condiciones necesarias para ser aplicado a la orden del cliente.
+
+   FUNCIÓN verificar_condiciones_cupon(cupon, orden):
+
+   # Verificar fecha de validez
+
+   SI fecha_actual() < cupon.fecha_inicio O fecha_actual() > cupon.fecha_fin:
+   retornar False
+
+   # Verificar límite de uso
+
+   SI cupon.uso_actual >= cupon.uso_maximo:
+   retornar False
+
+   # Verificar si el cupón es aplicable a los productos en la orden
+
+   SI cupon.tipo_aplicacion == 'producto':
+   productos_aplicables = obtener_productos_aplicables(cupon)
+   SI NO productos_en_orden_son_aplicables(orden, productos_aplicables):
+   retornar False
+
+   # Verificar monto mínimo de compra si aplica
+
+   SI cupon.monto_minimo_compra > 0:
+   SI orden.amount_untaxed < cupon.monto_minimo_compra:
+   retornar False
+
+   retornar True
+
+4. Calcular Descuento del Cupón
+   Descripción: Calcula el monto de descuento que se aplicará a la orden en función del tipo y valor del cupón.
+
+   FUNCIÓN calcular_descuento_cupon(cupon, orden):
+
+   SI cupon.tipo_descuento == 'porcentaje': # Aplicar porcentaje de descuento sobre el monto aplicable
+   monto_aplicable = obtener_monto_aplicable(orden, cupon)
+   monto_descuento = monto_aplicable \* (cupon.valor_descuento / 100)
+   SINO SI cupon.tipo_descuento == 'fijo': # Descuento fijo en moneda local
+   monto_descuento = cupon.valor_descuento
+   SINO:
+   monto_descuento = 0
+
+   # Verificar límite máximo de descuento si aplica
+
+   SI cupon.descuento_maximo > 0:
+   monto_descuento = min(monto_descuento, cupon.descuento_maximo)
+
+   retornar monto_descuento
+
+5. Obtener Monto Aplicable para el Descuento
+   Descripción: Calcula el monto sobre el cual se aplicará el descuento del cupón, según los productos o categorías aplicables.
+
+   FUNCIÓN obtener_monto_aplicable(orden, cupon):
+
+   monto_aplicable = 0.0
+
+   # Si el cupón aplica a productos específicos
+
+   SI cupon.tipo_aplicacion == 'producto':
+   productos_aplicables = obtener_productos_aplicables(cupon)
+   PARA cada linea EN orden.lineas_venta:
+   SI linea.product_id EN productos_aplicables:
+   monto_aplicable += linea.price_subtotal
+
+   # Si el cupón aplica a categorías
+
+   SINO SI cupon.tipo_aplicacion == 'categoria':
+   categorias_aplicables = obtener_categorias_aplicables(cupon)
+   PARA cada linea EN orden.lineas_venta:
+   SI linea.product_id.categ_id EN categorias_aplicables:
+   monto_aplicable += linea.price_subtotal
+
+   # Si el cupón aplica a toda la orden
+
+   SINO SI cupon.tipo_aplicacion == 'orden':
+   monto_aplicable = orden.amount_untaxed
+
+   retornar monto_aplicable
+
+6. Eliminar Cupón Aplicado
+   Descripción: Permite al cliente eliminar un cupón previamente aplicado a su orden.
+
+   FUNCIÓN eliminar_cupon_de_orden(cliente_id, orden_id):
+
+   # Verificar si el cliente y la orden existen
+
+   SI cliente NO existe(cliente_id):
+   retornar error("Cliente no encontrado")
+   SI orden NO existe(orden_id):
+   retornar error("Orden no encontrada")
+
+   # Obtener la orden
+
+   orden = obtener_orden_por_id(orden_id)
+
+   # Verificar que la orden pertenezca al cliente
+
+   SI orden.partner_id != cliente_id:
+   retornar error("La orden no pertenece al cliente")
+
+   # Verificar si hay un cupón aplicado
+
+   SI orden.coupon_id ES None:
+   retornar error("No hay ningún cupón aplicado a la orden")
+
+   # Obtener el cupón
+
+   cupon = obtener_cupon_por_id(orden.coupon_id)
+
+   # Revertir el descuento
+
+   monto_descuento = calcular_descuento_cupon(cupon, orden)
+   orden.amount_total += monto_descuento
+
+   # Eliminar el cupón de la orden
+
+   orden.coupon_id = None
+
+   # Guardar los cambios
+
+   guardar(orden)
+
+   # Actualizar uso del cupón
+
+   cupon.uso_actual -= 1
+   guardar(cupon)
+
+   # Registrar evento de eliminación de cupón
+
+   registrar_evento_cupon(cupon, "Cupón eliminado de la orden " + orden_id)
+
+   retornar "Cupón eliminado con éxito"
+
+7. Obtener Cupones Disponibles para el Cliente
+   Descripción: Recupera los cupones que el cliente puede utilizar, considerando condiciones como validez, uso y segmentos de clientes.
+
+   FUNCIÓN obtener_cupones_disponibles(cliente_id):
+
+   # Obtener todos los cupones activos
+
+   cupones = obtener_cupones_activos()
+
+   cupones_disponibles = []
+
+   PARA cada cupon EN cupones: # Verificar si el cupón es válido para el cliente
+   SI verificar_condiciones_cliente(cupon, cliente_id):
+   cupones_disponibles.agregar(cupon)
+
+   retornar cupones_disponibles
+
+8. Verificar Condiciones del Cliente para el Cupón
+   Descripción: Verifica si el cupón es aplicable al cliente en función de segmentos, historial de compras u otras condiciones.
+
+   FUNCIÓN verificar_condiciones_cliente(cupon, cliente_id):
+
+   # Verificar si el cupón está dirigido a segmentos específicos
+
+   SI cupon.segmento_cliente_id NO ES None:
+   cliente = obtener_cliente_por_id(cliente_id)
+   SI cliente.segmento_id != cupon.segmento_cliente_id:
+   retornar False
+
+   # Otras condiciones adicionales (ejemplo: cliente nuevo, compras previas)
+
+   SI cupon.solo_clientes_nuevos:
+   SI cliente_tiene_compras_previas(cliente_id):
+   retornar False
+
+   retornar True
+
+9. Registrar Eventos del Cupón
+   Descripción: Mantiene un registro de eventos y acciones realizadas en los cupones para fines de auditoría y seguimiento.
+
+   FUNCIÓN registrar_evento_cupon(cupon, mensaje):
+
+   # Crear un nuevo registro en un modelo de log personalizado (por ejemplo, cupon.log)
+
+   log_cupon = nuevo cupon.log(
+   coupon_id=cupon.id,
+   mensaje=mensaje,
+   fecha=fecha_actual()
+   )
+
+   # Guardar el log
+
+   guardar(log_cupon)
+
+10. Mostrar Detalles del Cupón al Cliente
+    Descripción: Proporciona al cliente información detallada sobre el cupón, incluyendo términos y condiciones.
+
+    FUNCIÓN mostrar_detalles_cupon(cliente_id, codigo_cupon):
+
+    # Verificar si el cliente existe
+
+    SI cliente NO existe(cliente_id):
+    retornar error("Cliente no encontrado")
+
+    # Obtener el cupón
+
+    cupon = obtener_cupon_por_codigo(codigo_cupon)
+
+    # Verificar que el cupón exista
+
+    SI cupon ES None:
+    retornar error("Cupón no encontrado")
+
+    # Verificar condiciones del cliente
+
+    SI NO verificar_condiciones_cliente(cupon, cliente_id):
+    retornar error("El cupón no es aplicable para el cliente")
+
+    # Mostrar detalles al cliente
+
+    detalles = {
+    "Código": cupon.code,
+    "Descripción": cupon.description,
+    "Tipo de Descuento": cupon.tipo_descuento,
+    "Valor de Descuento": cupon.valor_descuento,
+    "Fecha de Validez": cupon.fecha_inicio + " a " + cupon.fecha_fin,
+    "Términos y Condiciones": cupon.terminos_y_condiciones
+    }
+
+    mostrar_al_cliente(detalles)
+
+    retornar "Detalles del cupón mostrados con éxito"
+
+# Módulo de Reservas
+
+1. Buscar y Seleccionar Producto o Servicio para Reservar
+   Descripción:
+   Buscar_productos_disponibles: Consulta los productos o servicios que están disponibles para reserva y los muestra al cliente.
+   Seleccionar_producto: El cliente elige un producto de la lista presentada.
+
+   FUNCION buscar_productos_disponibles():
+
+   # Mostrar al cliente una lista de productos o servicios disponibles para reserva
+
+   productos = obtener_productos_disponibles(product.template)
+   mostrar_productos(productos)
+   retornar productos
+
+   FUNCION seleccionar_producto(productos): # El cliente selecciona un producto o servicio de la lista
+   producto_seleccionado = cliente_selecciona_producto(productos)
+   retornar producto_seleccionado
+
+2. Verificar Disponibilidad y Seleccionar Fecha y Hora
+
+Descripción:
+Verificar_disponibilidad: Utiliza el modelo calendar.event para obtener las fechas y horas en las que el producto o servicio está disponible.
+Seleccionar_fecha_hora: El cliente elige una fecha y hora específicas para su reserva.
+
+FUNCION verificar_disponibilidad(producto_seleccionado): # Consultar el calendario de eventos para ver las fechas y horas disponibles
+disponibilidad = consultar_disponibilidad(calendar.event, producto_seleccionado)
+mostrar_disponibilidad(disponibilidad)
+retornar disponibilidad
+
+FUNCION seleccionar_fecha_hora(disponibilidad): # El cliente selecciona una fecha y hora de las opciones disponibles
+fecha_hora_seleccionada = cliente_selecciona_fecha_hora(disponibilidad)
+retornar fecha_hora_seleccionada
+
+3. Iniciar el Proceso de Reserva
+
+Descripción:
+Iniciar_proceso_reserva: Crea una reserva preliminar en calendar.event con el producto y la fecha/hora seleccionados.
+
+FUNCION iniciar_proceso_reserva(producto_seleccionado, fecha_hora_seleccionada): # Crear una nueva reserva preliminar
+reserva = crear_reserva_preliminar(calendar.event, producto_seleccionado, fecha_hora_seleccionada)
+mostrar_detalles_reserva(reserva)
+retornar reserva
+
+4. Ingresar Información del Cliente
+
+Descripción:
+Ingresar_informacion_cliente: Recopila la información del cliente y verifica si ya existe en res.partner o crea un nuevo registro.
+
+FUNCION ingresar_informacion_cliente(): # El cliente ingresa o confirma sus datos personales
+datos_cliente = obtener_datos_cliente()
+cliente = verificar_o_crear_cliente(res.partner, datos_cliente)
+retornar cliente
+
+5. Confirmar Reserva
+   Descripción:
+   Confirmar_reserva: Actualiza la reserva preliminar asociándola al cliente y confirma los detalles.
+
+FUNCION confirmar_reserva(reserva, cliente): # Asocia la reserva al cliente
+reserva.partner_id = cliente.id
+actualizar_reserva(calendar.event, reserva)
+mostrar_resumen_reserva(reserva)
+retornar reserva
+
+6. Validar y Completar el Pago
+
+Descripción:
+Validar_pago: Procesa el pago y actualiza su estado según el resultado (éxito o fracaso).
+
+FUNCION validar_pago(pago): # Procesa el pago (interacción con pasarela de pagos)
+resultado_pago = ejecutar_pago(pago)
+SI resultado_pago.es_exitoso:
+actualizar_estado_pago(account.payment, pago, 'confirmado')
+retornar True
+SINO:
+actualizar_estado_pago(account.payment, pago, 'rechazado')
+retornar False
+
+7. Notificaciones al Cliente
+
+Descripción:
+
+Notificar_cliente_reserva_confirmada: Envía una notificación al cliente confirmando su reserva.
+Notificar_cliente_reserva_cancelada: Informa al cliente que la reserva no pudo ser confirmada.
+
+FUNCION notificar_cliente_reserva_confirmada(reserva):
+mensaje = generar_mensaje_confirmacion(reserva)
+enviar_notificacion(res.partner, reserva.partner_id, mensaje)
+
+FUNCION notificar_cliente_reserva_cancelada(reserva):
+mensaje = generar_mensaje_cancelacion(reserva)
+enviar_notificacion(res.partner, reserva.partner_id, mensaje)
+
+# Modulo de Carrito de Compras
+
+1. Navegar y Seleccionar Productos
+   Descripción:
+   mostrar_productos_disponibles: Recupera y muestra los productos disponibles en el marketplace.
+   seleccionar_producto: El cliente selecciona los productos que desea comprar.
+
+   FUNCION mostrar_productos_disponibles():
+
+   # Mostrar al cliente una lista de productos disponibles
+
+   productos = obtener_lista_productos(product.template)
+   mostrar_productos(productos)
+   retornar productos
+
+   FUNCION seleccionar_producto(productos): # El cliente selecciona uno o más productos
+   productos_seleccionados = cliente_selecciona_productos(productos)
+   retornar productos_seleccionados
+
+2. Agregar Productos al Carrito
+
+   Descripción:
+   agregar_productos_al_carrito: Añade los productos seleccionados al carrito del cliente, creando líneas de pedido en sale.order.line.
+
+   FUNCION agregar_productos_al_carrito(cliente, productos_seleccionados):
+
+   # Verificar si el cliente tiene un carrito activo (sale.order en estado 'carrito')
+
+   carrito = obtener_carrito_activo(cliente)
+   SI carrito ES None: # Crear un nuevo carrito (sale.order)
+   carrito = crear_nuevo_carrito(sale.order, cliente)
+
+   PARA cada producto EN productos_seleccionados: # Agregar productos al carrito como líneas de pedido (sale.order.line)
+   linea_pedido = crear_linea_pedido(carrito, producto)
+   agregar_linea_al_carrito(carrito, linea_pedido)
+
+   # Actualizar el carrito en la base de datos
+
+   guardar_carrito(carrito)
+   retornar carrito
+
+3. Visualizar y Modificar el Carrito
+
+   Descripción:
+   visualizar_carrito: Muestra al cliente los productos en su carrito, incluyendo cantidades y precios.
+   modificar_carrito: Permite al cliente actualizar las cantidades o eliminar productos del carrito.
+
+   FUNCION visualizar_carrito(carrito):
+
+   # Mostrar el contenido del carrito al cliente
+
+   mostrar_contenido_carrito(carrito)
+   retornar carrito
+
+   FUNCION modificar_carrito(carrito): # Permitir al cliente actualizar cantidades o eliminar productos
+   opciones = obtener_opciones_modificacion()
+   SI opciones == 'actualizar_cantidad':
+   actualizar_cantidad_producto(carrito)
+   SI opciones == 'eliminar_producto':
+   eliminar_producto_del_carrito(carrito)
+   guardar_carrito(carrito)
+   retornar carrito_actualizado
+
+4. Proceder al Checkout
+   Descripción:
+   proceder_al_checkout: Cambia el estado del carrito a 'pedido' y confirma que el cliente desea continuar al pago.
+
+   FUNCION proceder_al_checkout(carrito):
+
+   # Confirmar que el cliente desea continuar con la compra
+
+   confirmacion = solicitar_confirmacion_checkout()
+   SI confirmacion:
+   carrito.estado = 'pedido'
+   actualizar_estado_carrito(carrito)
+   retornar True
+   SINO:
+   retornar False
+
+5. Ingresar Información del Cliente
+   Descripción:
+   obtener_informacion_cliente: Recopila o confirma la información del cliente y la almacena en res.partner.
+
+   FUNCION obtener_informacion_cliente():
+
+   # El cliente ingresa o confirma sus datos personales
+
+   datos_cliente = obtener_datos_cliente()
+   cliente = verificar_o_crear_cliente(res.partner, datos_cliente)
+   retornar cliente
+
+6. Seleccionar Método de Pago y Procesar Pago
+   Descripción:
+   seleccionar_metodo_pago: El cliente elige su método de pago preferido.
+   procesar_pago: Genera un registro de pago para el pedido.
+
+   FUNCION seleccionar_metodo_pago():
+
+   # Mostrar los métodos de pago disponibles
+
+   metodos_pago = obtener_metodos_pago_disponibles()
+   metodo_seleccionado = cliente_selecciona_metodo_pago(metodos_pago)
+   retornar metodo_seleccionado
+   FUNCION procesar_pago(carrito, cliente, metodo_pago): # Crear un registro de pago en account.payment
+   pago = crear_registro_pago(account.payment, carrito, cliente, metodo_pago)
+   mostrar_detalles_pago(pago)
+   retornar pago
+
+7. Validar y Completar el Pago
+   Descripción:
+   validar_pago: Procesa el pago del cliente y actualiza su estado.
+
+   FUNCION validar_pago(pago):
+
+   # Procesa el pago (interacción con pasarela de pagos)
+
+   resultado_pago = ejecutar_pago(pago)
+   SI resultado_pago.es_exitoso:
+   actualizar_estado_pago(account.payment, pago, 'confirmado')
+   retornar True
+   SINO:
+   actualizar_estado_pago(account.payment, pago, 'rechazado')
+   retornar False
+
+8. Confirmar Pedido
