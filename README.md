@@ -126,6 +126,15 @@ Página donde los usuarios pueden conectar sus cuentas de redes sociales, permit
 
 ### Módulo de Usuarios
 
+# Módulo de Usuarios
+
+Modelo Principal: res.users
+Modelo Complementario: res.partner
+Modelo Complementario: res.groups
+Modelo Complementario: res.partner.bank
+Modelo Complementario: auth.oauth.provider
+Modelo Complementario: res.users.log
+
 Modelo Principal: res.users
 Función: Gestiona la autenticación, creación, y gestión de usuarios en el sistema.
 
@@ -146,6 +155,14 @@ Función: Registra los accesos y eventos importantes relacionados con los usuari
 
 ### Módulo de Productos
 
+# Módulo de Productos
+
+Modelo Principal: product.template
+Modelo Complementario: product.product
+Modelo Complementario: product.category
+Modelo Complementario: product.attribute
+Modelo Complementario: product.attribute.value
+
 Modelo Principal: product.template
 Función: Maneja la creación y actualización de productos que se ofrecen en el marketplace.
 
@@ -162,6 +179,14 @@ Modelo Complementario: product.attribute.value
 Función:Define los valores de los atributos que permiten la creación de variantes. Por ejemplo, si el atributo es "Color", los valores pueden ser "Rojo", "Azul", etc.
 
 ### Módulo de Tiendas
+
+# Módulo de Tiendas
+
+Modelo Principal: res.partner
+Modelo Complementario: res.partner.bank
+Modelo Complementario: res.partner.category
+Modelo Complementario: res.users
+Modelo Complementario : sale.order
 
 Modelo Principal: res.partner
 Función: Representa a las tiendas dentro del marketplace, gestionando información de proveedores y vendedores.
@@ -180,6 +205,12 @@ Función: Este modelo gestiona los pedidos realizados por los clientes dentro de
 
 ### Módulo de Pedidos
 
+# Módulo de Pedidos
+
+Modelo Principal: sale.order
+Modulo Complementario: sale.order.line
+Modelo Complementario : sale.report
+
 Modelo Principal: sale.order
 Función: Gestiona el flujo de pedidos realizados por los usuarios, desde la creación del pedido hasta la entrega.
 
@@ -190,6 +221,12 @@ Modelo Complementario : sale.report
 Función: Este modelo es utilizado para generar informes sobre las ventas realizadas en el marketplace. Incluye datos como el total de ventas por cliente, por tienda, y por producto.
 
 ### Módulo de Reseñas
+
+# Módulo de Reseñas
+
+Modelo Personalizado: product.review
+Modelo Relacionado : product.product
+Modelo Relacionado: product.rating (Sistema de valoraciones general)
 
 Modelo Personalizado: product.review
 Función: Permite a los usuarios dejar comentarios y valoraciones sobre productos comprados.
@@ -202,10 +239,20 @@ Función: Aunque product.review gestiona los comentarios textuales, este modelo 
 
 ### Módulo de Geolocalización
 
+# Módulo de Geolocalización
+
+Modelo Principal: stock.location
+
 Modelo Principal: stock.location
 Función: Proporciona la ubicación de las tiendas o almacenes dentro del marketplace.
 
 ### Módulo de Horarios
+
+# Módulo de Horarios
+
+Modelo Personalizado: marketplace.schedule
+Modelo Relacionado : res.partner (Tiendas y Proveedores)
+Modelo Relacionado: calendar.event (Eventos y Citas)
 
 Modelo Personalizado: marketplace.schedule
 Función: Maneja los horarios de operación de las tiendas o servicios del marketplace.
@@ -217,6 +264,14 @@ Modelo Relacionado: calendar.event (Eventos y Citas)
 Función : El modelo calendar.event es útil para gestionar eventos programados o citas que dependen de la disponibilidad horaria. En un marketplace, puede utilizarse para gestionar reservas de productos o servicios que deben programarse dentro de los horarios de disponibilidad de la tienda o proveedor.
 
 ### Módulo de Entradas
+
+# Módulo de Entradas
+
+Modelo Principal: event.event
+Modelo Relacionado: event.ticket (Boletos o Entradas)
+Modelo Relacionado : event.registration (Participantes Registrados)
+Modelo Relacionado : sale.order (Órdenes de Venta)
+Modelo Relacionado: sale.order.line (Líneas de Venta)
 
 Modelo Principal: event.event
 Función: Gestiona la creación y venta de entradas para eventos organizados en el marketplace.
@@ -235,6 +290,11 @@ Función : El modelo sale.order.line especifica los detalles de cada producto o 
 
 ### Módulo de Promociones
 
+# Módulo de Promociones
+
+Modelo Principal: sale.coupon
+Modelo Relacionado: product.template (Productos)
+
 Modelo Principal: sale.coupon
 Función: Administra cupones y descuentos aplicables a los productos o servicios en el marketplace.
 
@@ -242,6 +302,13 @@ Modelo Relacionado: product.template (Productos)
 Función : El modelo product.template es fundamental y se utiliza para gestionar la información de los productos en el marketplace. Las promociones pueden aplicarse a uno o varios productos a través de cupones, descuentos y campañas.
 
 ### Módulo de Reservas
+
+# Módulo de Reservas
+
+Modelo Principal: calendar.event
+Modelo Relacionado: res.partner (Clientes)
+Modelo Relacionado: account.payment (Pagos)
+Modelo Relacionado: product.template (Productos)
 
 Modelo Principal: calendar.event
 Función: Maneja la reserva de productos o servicios en tiendas del marketplace.
@@ -257,6 +324,13 @@ El modelo product.template gestiona la información sobre los productos o servic
 
 ### Módulo de Carrito de Compras
 
+# Módulo de Carrito de Compras
+
+Modelo Principal: sale.order
+Modelo Relacionado: product.template (Productos)
+Modelo Relacionado: res.partner (Clientes)
+Modelo Relacionado: account.payment (Pagos)
+
 Modelo Principal: sale.order
 Función: Gestiona el carrito de compras donde los usuarios almacenan los productos antes de proceder con la compra.
 
@@ -271,6 +345,12 @@ Función: El modelo account.payment gestiona los pagos realizados por los usuari
 
 ### Módulo de Pagos
 
+# Módulo de Pagos
+
+Modelo Principal: account.payment
+Modelo Relacionado: res.partner (Clientes)
+Modelo Relacionado : account.payment.method (Métodos de Pago)
+
 Modelo Principal: account.payment
 Función: Procesa los pagos realizados por los usuarios en el marketplace.
 
@@ -282,18 +362,32 @@ Función : Este modelo define los métodos de pago disponibles para los usuarios
 
 ### Módulo de Recomendaciones
 
+# Módulo de Recomendaciones
+
+Modelo Personalizado: product.recommendation
+
 Modelo Personalizado: product.recommendation
 Función: Sugiere productos personalizados a los usuarios basados en su historial de compras y comportamiento en el marketplace.
 
 ### Módulo de Notificaciones
 
-Modelo: mail.message
+# Módulo de Notificaciones
+
+Modelo Principal: mail.message
+Modelo Relacionado: res.users (Usuarios)
+
+Modelo Principal: mail.message
 Función: Gestiona las notificaciones enviadas a los usuarios relacionadas con sus actividades, pedidos y promociones.
 
 Modelo Relacionado: res.users (Usuarios)
 Función : El modelo res.users gestiona la información sobre los usuarios del marketplace y es fundamental para el envío de notificaciones.
 
 ### Módulo de Mensajería
+
+# Módulo de Mensajería
+
+Modelo Principal: mail.message
+Modelo Relacionado: product.template (Productos)
 
 Modelo Principal: mail.message
 Función: Permite la mensajería interna entre los usuarios, soporte y las tiendas del marketplace.
@@ -302,6 +396,12 @@ Modelo Relacionado: product.template (Productos)
 Función: Los clientes pueden enviar preguntas sobre productos directamente desde la página de detalles del producto.
 
 ### Módulo de Integración con Redes Sociales
+
+# Módulo de Integración con Redes Sociales
+
+Modelo Personalizado: social.media
+Modelo Relacionado: res.partner
+Modelo: auth.oauth.provider
 
 Modelo Personalizado: social.media
 Función: Facilita la integración de las cuentas de redes sociales para el inicio de sesión y compartición de contenido.
@@ -2311,7 +2411,7 @@ enviar_notificacion(res.partner, reserva.partner_id, mensaje)
    mensaje = generar_mensaje_cancelacion_pedido(carrito)
    enviar_notificacion(res.partner, carrito.partner_id, mensaje)
 
-# Metodos de Pago
+# Módulo de Pago
 
 1. Iniciar el Proceso de Pago
    Descripción:
@@ -2408,3 +2508,435 @@ enviar_notificacion(res.partner, reserva.partner_id, mensaje)
    FUNCION notificar_cliente_pago_fallido(pago):
    mensaje = generar_mensaje_pago_fallido(pago)
    enviar_notificacion(res.partner, pago.partner_id, mensaje)
+
+# Módulo de Recomendaciones
+
+1. Obtener Recomendaciones Personalizadas
+
+   Descripción:
+   obtener_recomendaciones: Recupera las recomendaciones existentes para el cliente; si no hay recomendaciones previas, las genera.
+
+   FUNCION obtener_recomendaciones(cliente):
+
+   # Obtener recomendaciones desde el modelo product.recommendation
+
+   recomendaciones = consultar_recomendaciones(product.recommendation, cliente.id)
+   SI recomendaciones ESTÁN vacías: # Generar recomendaciones si no existen
+   recomendaciones = generar_recomendaciones(cliente)
+   retornar recomendaciones
+
+2. Mostrar Recomendaciones al Cliente
+
+   Descripción:
+   mostrar_recomendaciones: Presenta al cliente los productos recomendados, ordenados por relevancia.
+
+   FUNCION mostrar_recomendaciones(recomendaciones):
+
+   # Ordenar recomendaciones por puntuación
+
+   recomendaciones_ordenadas = ordenar_por_puntuacion(recomendaciones)
+
+   # Mostrar los productos recomendados al cliente
+
+   mostrar_productos_recomendados(recomendaciones_ordenadas)
+   retornar True
+
+3. Interacción del Cliente con las Recomendaciones
+
+   Descripción:
+   interactuar_con_recomendaciones: Permite al cliente interactuar con las recomendaciones, incluyendo ver más detalles, agregar productos al carrito o descartar productos.
+
+   FUNCION interactuar_con_recomendaciones(cliente, recomendaciones):
+
+   # El cliente puede ver detalles, agregar al carrito, o descartar recomendaciones
+
+   opcion = cliente_selecciona_opcion(recomendaciones)
+   SI opcion == 'ver_detalles':
+   producto = obtener_detalles_producto(opcion.producto_id)
+   mostrar_detalles_producto(producto)
+   SI opcion == 'agregar_al_carrito':
+   agregar_producto_al_carrito(cliente, opcion.producto_id)
+   SI opcion == 'descartar':
+   descartar_recomendacion(cliente, opcion.producto_id)
+   retornar True
+
+4. Actualizar Recomendaciones Basadas en la Interacción
+
+   Descripción:
+   actualizar_recomendaciones: Ajusta las puntuaciones de las recomendaciones en función de las acciones del cliente, mejorando la relevancia futura.
+
+   FUNCION actualizar_recomendaciones(cliente, producto_id, accion):
+
+   # Actualiza las recomendaciones en base a la acción del cliente
+
+   SI accion == 'agregar_al_carrito':
+   incrementar_puntuacion_recomendacion(product.recommendation, cliente.id, producto_id)
+   SI accion == 'descartar':
+   decrementar_puntuacion_recomendacion(product.recommendation, cliente.id, producto_id)
+   guardar_cambios()
+   retornar True
+
+5. Generar Recomendaciones si No Existen
+
+   Descripción:
+   generar_recomendaciones: Cuando no hay recomendaciones previas, se generan nuevas utilizando datos del cliente.
+
+   FUNCION generar_recomendaciones(cliente):
+
+   # Analizar historial de compras y comportamiento de navegación
+
+   historial_compras = obtener_historial_compras(cliente)
+   productos_visitados = obtener_productos_visitados(cliente)
+
+   # Utilizar algoritmo de recomendación (por ejemplo, filtrado colaborativo)
+
+   productos_recomendados = algoritmo_recomendacion(historial_compras, productos_visitados)
+
+   # Crear registros en product.recommendation
+
+   recomendaciones = crear_recomendaciones(product.recommendation, cliente.id, productos_recomendados)
+   retornar recomendaciones
+
+# Módulo de Notificaciones
+
+1. Generar Notificaciones Basadas en Eventos
+
+   Descripción:
+   generar_notificacion: Crea una nueva notificación cuando ocurre un evento relevante (por ejemplo, cambio de estado de un pedido, mensaje de una tienda).
+
+   FUNCION generar_notificacion(evento, usuario_id, datos_adicionales):
+
+   # Crear un nuevo mensaje en mail.message
+
+   mensaje = nuevo mail.message(
+   tipo_mensaje=evento.tipo_mensaje,
+   asunto=evento.asunto,
+   cuerpo=generar_cuerpo_mensaje(evento, datos_adicionales),
+   destinatario_id=usuario_id,
+   leido=False,
+   fecha_creacion=fecha_actual()
+   )
+   guardar(mensaje)
+   retornar mensaje
+
+2. Enviar Notificación al Cliente
+
+   Descripción:
+   enviar_notificacion: Envía la notificación al cliente si las preferencias lo permiten, por el canal seleccionado.
+
+   FUNCION enviar_notificacion(mensaje):
+   usuario = obtener_usuario(res.users, mensaje.destinatario_id)
+   SI usuario ES None:
+   retornar error("Usuario no encontrado")
+
+   # Verificar si el usuario ha elegido recibir este tipo de notificación
+
+   SI usuario.prefiere_notificacion(mensaje.tipo_mensaje): # Enviar notificación por el canal preferido (email, SMS, interno)
+   canal = usuario.canal_preferido(mensaje.tipo_mensaje)
+   resultado_envio = enviar_por_canal(mensaje, canal)
+   SI resultado_envio.exitoso:
+   mensaje.enviado = True
+   guardar(mensaje)
+   retornar "Notificación enviada"
+   SINO:
+   retornar "Error al enviar la notificación"
+   SINO:
+   retornar "El usuario no desea recibir este tipo de notificación"
+
+3. Visualizar Notificaciones Recibidas
+
+   Descripción:
+   visualizar_notificaciones: Permite al cliente ver sus notificaciones no leídas y las marca como leídas después de mostrarlas.
+
+   FUNCION visualizar_notificaciones(cliente_id):
+
+   # Obtener las notificaciones del cliente no leídas
+
+   mensajes = obtener_mensajes_no_leidos(mail.message, cliente_id)
+   mostrar_notificaciones(mensajes)
+
+   # Marcar las notificaciones como leídas
+
+   PARA cada mensaje EN mensajes:
+   mensaje.leido = True
+   guardar(mensaje)
+   retornar "Notificaciones actualizadas como leídas"
+
+4. Gestionar Notificaciones (Eliminar, Marcar como Importantes)
+
+   Descripción:
+   gestionar_notificaciones: Permite al cliente administrar sus notificaciones, eliminando las que no desea conservar o marcando las importantes.
+
+   FUNCION gestionar_notificaciones(cliente_id):
+
+   # Obtener todas las notificaciones del cliente
+
+   mensajes = obtener_mensajes(mail.message, cliente_id)
+   accion = cliente_selecciona_accion(mensajes)
+
+   SI accion.tipo == 'eliminar':
+   eliminar_mensaje(mail.message, accion.mensaje_id)
+   retornar "Notificación eliminada"
+   SI accion.tipo == 'marcar_importante':
+   mensaje = obtener_mensaje_por_id(mail.message, accion.mensaje_id)
+   mensaje.importante = True
+   guardar(mensaje)
+   retornar "Notificación marcada como importante"
+
+5. Responder a Notificaciones (Mensajes)
+   Descripción:
+   responder_a_notificacion: Permite al cliente responder a una notificación, iniciando o continuando una conversación.
+
+   FUNCION responder_a_notificacion(cliente_id, mensaje_id, respuesta):
+
+   # Obtener el mensaje original
+
+   mensaje_original = obtener_mensaje_por_id(mail.message, mensaje_id)
+   SI mensaje_original ES None:
+   retornar error("Mensaje no encontrado")
+
+   # Crear una respuesta al mensaje
+
+   mensaje_respuesta = nuevo mail.message(
+   tipo_mensaje='respuesta',
+   asunto='Re: ' + mensaje_original.asunto,
+   cuerpo=respuesta,
+   remitente_id=cliente_id,
+   destinatario_id=mensaje_original.remitente_id,
+   fecha_creacion=fecha_actual()
+   )
+   guardar(mensaje_respuesta)
+
+   # Enviar la respuesta
+
+   enviar_notificacion(mensaje_respuesta)
+   retornar "Respuesta enviada"
+
+# Modulo de Mensajeria
+
+1. Navegar y Seleccionar Producto para Consultar
+
+   Descripción:
+   mostrar_productos_disponibles: Recupera y muestra los productos disponibles en el marketplace.
+   seleccionar_producto_para_consulta: El cliente selecciona el producto sobre el cual desea enviar un mensaje o consulta.
+
+   FUNCION mostrar_productos_disponibles():
+
+   # Mostrar al cliente una lista de productos disponibles
+
+   productos = obtener_lista_productos(product.template)
+   mostrar_productos(productos)
+   retornar productos
+
+   FUNCION seleccionar_producto_para_consulta(productos): # El cliente selecciona un producto para realizar una consulta
+   producto_seleccionado = cliente_selecciona_producto(productos)
+   retornar producto_seleccionado
+
+2. Iniciar una Nueva Conversación sobre el Producto
+
+   Descripción:
+   iniciar_conversacion: Crea un nuevo hilo de mensajes en mail.message que relaciona al cliente con el producto seleccionado.
+
+   FUNCION iniciar_conversacion(cliente_id, producto_id):
+
+   # Crear un nuevo hilo de mensajes asociado al producto y al cliente
+
+   hilo_mensaje = crear_hilo_mensaje(mail.message, cliente_id, producto_id)
+   retornar hilo_mensaje
+
+3. Redactar y Enviar Mensaje al Vendedor
+
+   Descripción:
+   redactar_y_enviar_mensaje: El cliente escribe su mensaje y se crea un registro en mail.message; luego, se notifica al vendedor correspondiente.
+
+   FUNCION redactar_y_enviar_mensaje(hilo_mensaje, cliente_id, contenido):
+
+   # Crear un nuevo mensaje en el hilo
+
+   mensaje = nuevo mail.message(
+   hilo_id=hilo_mensaje.id,
+   autor_id=cliente_id,
+   cuerpo=contenido,
+   fecha_creacion=fecha_actual(),
+   tipo_mensaje='comentario',
+   modelo_relacionado='product.template',
+   id_relacionado=hilo_mensaje.producto_id
+   )
+   guardar(mensaje)
+
+   # Notificar al vendedor asociado al producto
+
+   vendedor_id = obtener_vendedor_producto(product.template, hilo_mensaje.producto_id)
+   notificar_usuario(vendedor_id, mensaje)
+   retornar mensaje
+
+4. Recepción de Respuesta del Vendedor
+
+   Descripción:
+   recibir_respuesta_vendedor: Verifica si el vendedor ha respondido en el hilo de mensajes y recupera el último mensaje.
+
+   FUNCION recibir_respuesta_vendedor(hilo_mensaje):
+
+   # Esperar respuesta del vendedor en el hilo
+
+   SI hay_nuevo_mensaje(hilo_mensaje):
+   mensaje_respuesta = obtener_ultimo_mensaje(hilo_mensaje)
+   retornar mensaje_respuesta
+   SINO:
+   retornar None
+
+5. Mostrar Conversación al Cliente
+
+   Descripción:
+   mostrar_conversacion: Presenta al cliente todos los mensajes de la conversación, incluyendo sus propios mensajes y las respuestas del vendedor.
+
+   FUNCION mostrar_conversacion(hilo_mensaje, cliente_id):
+
+   # Obtener todos los mensajes del hilo
+
+   mensajes = obtener_mensajes_hilo(mail.message, hilo_mensaje.id)
+
+   # Mostrar los mensajes al cliente
+
+   PARA cada mensaje EN mensajes:
+   mostrar_mensaje(mensaje, cliente_id)
+   retornar True
+
+6. Responder y Continuar la Conversación
+
+   Descripción:
+   responder_mensaje: Permite al cliente continuar la conversación agregando nuevos mensajes al hilo y notificando al vendedor.
+
+   FUNCION responder_mensaje(hilo_mensaje, cliente_id, contenido):
+
+   # Crear un nuevo mensaje en el hilo como respuesta
+
+   mensaje = nuevo mail.message(
+   hilo_id=hilo_mensaje.id,
+   autor_id=cliente_id,
+   cuerpo=contenido,
+   fecha_creacion=fecha_actual(),
+   tipo_mensaje='comentario'
+   )
+   guardar(mensaje)
+
+   # Notificar al vendedor
+
+   vendedor_id = obtener_vendedor_producto(product.template, hilo_mensaje.producto_id)
+   notificar_usuario(vendedor_id, mensaje)
+   retornar mensaje
+
+7. Cerrar la Conversación
+
+   Descripción:
+   cerrar_conversacion: Permite al cliente cerrar el hilo de mensajes cuando su consulta ha sido resuelta.
+
+   FUNCION cerrar_conversacion(hilo_mensaje, cliente_id):
+
+   # El cliente decide cerrar la conversación
+
+   hilo_mensaje.estado = 'cerrado'
+   guardar(hilo_mensaje)
+
+   # Notificar al vendedor sobre el cierre
+
+   vendedor_id = obtener_vendedor_producto(product.template, hilo_mensaje.producto_id)
+   notificar_usuario(vendedor_id, "El cliente ha cerrado la conversación.")
+   retornar "Conversación cerrada"
+
+8. Historial de Mensajes y Conversaciones
+
+   Descripción:
+   ver_historial_conversaciones: Permite al cliente ver todas sus conversaciones pasadas con diferentes vendedores o sobre distintos productos
+
+   FUNCION ver_historial_conversaciones(cliente_id):
+
+   # Obtener todos los hilos de mensajes del cliente
+
+   hilos = obtener_hilos_cliente(mail.message, cliente_id)
+   mostrar_hilos(hilos)
+   retornar hilos
+
+# Módulo de Integración con Redes Sociales
+
+1. Inicio de Sesión con Redes Sociales (OAuth)
+
+   Descripción:
+   iniciar_sesion_con_red_social: Permite al cliente iniciar sesión en el marketplace utilizando su cuenta de una red social soportada, manejando todo el flujo de OAuth.
+
+   FUNCION iniciar_sesion_con_red_social(proveedor_nombre):
+
+   # Obtener el proveedor OAuth correspondiente
+
+   proveedor = obtener_proveedor_OAuth(auth.oauth.provider, proveedor_nombre)
+   SI proveedor ES None:
+   retornar error("Proveedor de autenticación no disponible")
+
+   # Redirigir al cliente a la página de autorización del proveedor
+
+   url_autorizacion = generar_url_autorizacion(proveedor)
+   redirigir_cliente(url_autorizacion)
+
+   # Después de la autorización, recibir el código de autorización
+
+   codigo_autorizacion = recibir_codigo_autorizacion()
+   SI codigo_autorizacion ES None:
+   retornar error("Autorización cancelada o fallida")
+
+   # Intercambiar el código por un token de acceso
+
+   token_acceso = obtener_token_acceso(proveedor, codigo_autorizacion)
+   SI token_acceso ES None:
+   retornar error("No se pudo obtener el token de acceso")
+
+   # Obtener información del usuario desde la red social
+
+   datos_usuario = obtener_datos_usuario_red_social(proveedor, token_acceso)
+   SI datos_usuario ES None:
+   retornar error("No se pudo obtener información del usuario")
+
+   # Verificar si el usuario ya existe en res.partner
+
+   cliente = buscar_cliente_por_email(res.partner, datos_usuario.email)
+   SI cliente ES None: # Crear nuevo cliente en res.partner
+   cliente = crear_nuevo_cliente(res.partner, datos_usuario) # Crear usuario asociado en res.users
+   usuario = crear_nuevo_usuario(res.users, cliente, datos_usuario)
+   SINO: # Obtener usuario asociado
+   usuario = obtener_usuario_asociado(res.users, cliente)
+   SI usuario ES None: # Crear usuario asociado si no existe
+   usuario = crear_nuevo_usuario(res.users, cliente, datos_usuario)
+
+   # Vincular la cuenta de red social al cliente
+
+   vincular_cuenta_red_social(social.media, cliente, proveedor, datos_usuario, token_acceso)
+
+   # Iniciar sesión del usuario en el sistema
+
+   iniciar_sesion(usuario)
+
+   retornar "Inicio de sesión exitoso con " + proveedor_nombre
+
+2. Vincular Cuentas de Redes Sociales
+
+   Descripción:
+   vincular_cuenta_red_social: Gestiona la vinculación de la cuenta de red social al perfil del cliente, almacenando tokens y datos relevantes.
+
+   FUNCION vincular_cuenta_red_social(social_media_model, cliente, proveedor, datos_usuario, token_acceso):
+
+   # Verificar si la cuenta ya está vinculada
+
+   cuenta_existente = buscar_cuenta_red_social(social_media_model, cliente.id, proveedor.id)
+   SI cuenta_existente NO ES None: # Actualizar token de acceso y datos
+   cuenta_existente.token_acceso = token_acceso
+   cuenta_existente.datos_usuario = datos_usuario
+   guardar(cuenta_existente)
+   SINO: # Crear nueva entrada en social.media
+   nueva_cuenta = nuevo social.media(
+   partner_id=cliente.id,
+   proveedor_id=proveedor.id,
+   token_acceso=token_acceso,
+   datos_usuario=datos_usuario,
+   fecha_vinculacion=fecha_actual()
+   )
+   guardar(nueva_cuenta)
+   retornar "Cuenta de red social vinculada exitosamente"
